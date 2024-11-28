@@ -1,24 +1,25 @@
 package ru.pinyaskin.finance.security.util;
 
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtCoreImpl implements JwtCore {
-    private Key key;
+    private SecretKey key;
 
-    @Value("${app.jwt.expiration-time}")
     private long expirationTime;
 
-    public JwtCoreImpl(@Value("${app.jwt.key}") String rawKey) {
+    public JwtCoreImpl(@Value("${app.jwt.key}") String rawKey,
+                       @Value("${app.jwt.expiration-time}") long expirationTime) {
         byte[] bytesKey = Sha512DigestUtils.sha(rawKey);
         this.key = new SecretKeySpec(bytesKey, "HMACSHA256");
+        this.expirationTime = expirationTime;
     }
 
     @Override
@@ -26,15 +27,20 @@ public class JwtCoreImpl implements JwtCore {
         return Jwts
                 .builder()
                 .subject(subject)
-                .expiration(getExpirationDate())
-                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .issuedAt(new Date(System.currentTimeMillis()))
                 .signWith(key)
                 .compact();
     }
 
     @Override
     public boolean isTokenExpired(String token) {
-        return false;
+        try {
+            Date expDate = extractClaims(token).getPayload().getExpiration();
+            return expDate.before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     @Override
@@ -42,9 +48,11 @@ public class JwtCoreImpl implements JwtCore {
         return null;
     }
 
-    private Date getExpirationDate() {
-        Date date = new Date();
-        date.setTime(date.getTime() + expirationTime);
-        return date;
+    private Jws<Claims> extractClaims(String token) {
+        return Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
     }
 }

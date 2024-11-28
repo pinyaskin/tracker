@@ -1,8 +1,6 @@
 package ru.pinyaskin.finance.security.util;
 
-import io.jsonwebtoken.Jwts;
-
-import java.security.Key;
+import io.jsonwebtoken.Claims;
 
 public interface JwtCore {
     String generateToken(String subject);
