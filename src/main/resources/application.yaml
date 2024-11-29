@@ -5,3 +5,4 @@ spring:
 app:
   jwt:
     key: randomKey
+    expiration-time: 120000 # 2 minutes

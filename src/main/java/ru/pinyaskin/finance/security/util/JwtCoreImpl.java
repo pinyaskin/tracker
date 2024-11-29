@@ -45,7 +45,7 @@ public class JwtCoreImpl implements JwtCore {
 
     @Override
     public String getUsernameFromToken(String token) {
-        return null;
+        return extractClaims(token).getPayload().getSubject();
     }
 
     private Jws<Claims> extractClaims(String token) {
