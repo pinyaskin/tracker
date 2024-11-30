@@ -2,7 +2,7 @@ package ru.pinyaskin.finance.repository;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.pinyaskin.finance.entity.User;
+import ru.pinyaskin.finance.model.entity.User;
 
 import java.util.Optional;
 

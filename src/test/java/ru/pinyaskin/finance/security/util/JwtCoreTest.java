@@ -7,7 +7,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class JwtCoreTest {
     @Test
     void shouldReturnValidKey() {
-        JwtCore jwt = new JwtCoreImpl("secret-key", 60000);
+        JwtCore jwt = new JwtCoreImpl("secret-key", 600000);
         String token = jwt.generateToken("user");
         boolean isExpired = jwt.isTokenExpired(token);
         String username = jwt.getUsernameFromToken(token);

@@ -1,4 +1,4 @@
-package ru.pinyaskin.finance.entity;
+package ru.pinyaskin.finance.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -1,10 +1,9 @@
 package ru.pinyaskin.finance.security;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.pinyaskin.finance.entity.User;
+import ru.pinyaskin.finance.model.entity.User;
 
 import java.util.Collection;
 
