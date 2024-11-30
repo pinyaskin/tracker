@@ -1,7 +1,8 @@
 package ru.pinyaskin.finance.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
+
+import ru.pinyaskin.finance.model.entity.User;
 
 public interface UserService {
-    UserDetails getUserDetailsByEmail(String email);
+    User getUserByEmail(String email);
 }

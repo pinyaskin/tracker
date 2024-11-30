@@ -33,8 +33,8 @@ public class SecurityConfig {
 
     private final String[] whiteList = new String[] {
             "/public/**",
-            "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/swagger-ui/**", // swagger ui endpoint
+            "/v3/api-docs/**" // auto docs for spring
     };
 
     @Bean
