@@ -31,13 +31,19 @@ public class SecurityConfig {
     private final JwtSecurityFilter jwtSecurityFilter;
     private final UserDetailsService userDetailsService;
 
+    private final String[] whiteList = new String[] {
+            "/public/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/public/**").permitAll()
+                                .requestMatchers(this.whiteList).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> {
