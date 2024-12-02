@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.pinyaskin.finance.security.util.JwtCore;
@@ -24,7 +25,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtSecurityFilter extends OncePerRequestFilter {
     private final JwtCore jwt;
-    private final UserServiceImpl userService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -37,7 +38,7 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         String token = authorization.substring(7);
         String username = jwt.getUsernameFromToken(token);
         if (StringUtils.isNotEmpty(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.getUserDetailsByEmail(username);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 
