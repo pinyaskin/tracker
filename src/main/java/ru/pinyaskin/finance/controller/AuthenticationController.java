@@ -1,5 +1,6 @@
 package ru.pinyaskin.finance.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +28,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<AuthenticationResponse> signUp(@RequestBody SignUpRequest request) {
+    public ResponseEntity<AuthenticationResponse> signUp(@Valid @RequestBody SignUpRequest request) {
         AuthenticationResponse response = authenticationService.signUp(request);
         return ResponseEntity.ok(response);
     }

@@ -1,8 +1,9 @@
 package ru.pinyaskin.finance.service;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -12,13 +13,18 @@ import ru.pinyaskin.finance.model.entity.User;
 import ru.pinyaskin.finance.model.payload.request.SignUpRequest;
 import ru.pinyaskin.finance.model.payload.response.AuthenticationResponse;
 import ru.pinyaskin.finance.repository.UserRepository;
+import ru.pinyaskin.finance.security.UserPrincipal;
 import ru.pinyaskin.finance.security.util.JwtCore;
 import ru.pinyaskin.finance.service.impl.AuthenticationServiceImpl;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceUnitTest {
+    // mocking
     @Mock
     private UserRepository userRepository;
 
@@ -31,7 +37,9 @@ public class AuthenticationServiceUnitTest {
     @InjectMocks
     private AuthenticationServiceImpl authenticationService;
 
-    private User user;
+    // utils
+    private final User user;
+    private final SignUpRequest request;
 
     AuthenticationServiceUnitTest() {
         user = new User();
@@ -39,29 +47,20 @@ public class AuthenticationServiceUnitTest {
         user.setName("John");
         user.setEmail("john@mail.com");
         user.setPassword("password");
-    }
 
-    @Test
-    void contextLoads() {
-        assertThat(userRepository).isNotNull();
-        assertThat(passwordEncoder).isNotNull();
-        assertThat(jwtCore).isNotNull();
-        assertThat(authenticationService).isNotNull();
-        assertThat(user.getName()).isNotNull();
-    }
-
-    @Test
-    void signUpShouldReturnValidToken() {
-        // Подготовим запрос в сервис
-        SignUpRequest request = new SignUpRequest();
+        request = new SignUpRequest();
         request.setName(user.getName());
         request.setEmail(user.getEmail());
         request.setPassword(user.getPassword());
+    }
 
+    @Test
+    @DisplayName("Успешная регистрация")
+    void signUp_shouldReturnValidToken() {
         // Given
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
         Mockito.when(passwordEncoder.encode(request.getPassword())).thenReturn("encodedPassword");
-        Mockito.when(jwtCore.generateToken(user.getEmail())).thenReturn("token");
+        Mockito.when(jwtCore.generateToken(new UserPrincipal(user))).thenReturn("token");
 
         // When
         AuthenticationResponse response = authenticationService.signUp(request);
@@ -74,6 +73,22 @@ public class AuthenticationServiceUnitTest {
 
         Mockito.verify(userRepository).save(Mockito.any(User.class));
         Mockito.verify(passwordEncoder).encode(request.getPassword());
-        Mockito.verify(jwtCore).generateToken(user.getEmail());
+        Mockito.verify(jwtCore).generateToken(new UserPrincipal(user));
+    }
+
+    @Test
+    @DisplayName("Ошибка: пользователь уже существует")
+    void signUp_userIsExists_shouldThrowAnException() {
+        // Given
+        Mockito
+                .when(userRepository.existsByEmail(request.getEmail()))
+                .thenThrow(new IllegalArgumentException("Пользователь уже существует"));
+
+        // When
+        Executable executable = () -> authenticationService.signUp(request);
+
+        assertThrows(IllegalArgumentException.class, executable);
+
+        Mockito.verify(userRepository).existsByEmail(request.getEmail());
     }
 }
