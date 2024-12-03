@@ -3,12 +3,13 @@ package ru.pinyaskin.finance.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.pinyaskin.finance.model.payload.request.SignInRequest;
 import ru.pinyaskin.finance.model.payload.request.SignUpRequest;
 import ru.pinyaskin.finance.model.payload.response.AuthenticationResponse;
 import ru.pinyaskin.finance.service.AuthenticationService;
+
+import static org.springframework.http.HttpStatus.CREATED;
 
 /**
  * Контроллер аутентификации.
@@ -30,6 +31,6 @@ public class AuthenticationController {
     @PostMapping("/sign-up")
     public ResponseEntity<AuthenticationResponse> signUp(@Valid @RequestBody SignUpRequest request) {
         AuthenticationResponse response = authenticationService.signUp(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(CREATED).body(response);
     }
 }
